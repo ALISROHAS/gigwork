@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShieldCheck, UserPlus, LogOut, Briefcase, User, Pencil, X, Check, ShieldAlert, Trash2, Lock, Unlock, Dices, CalendarPlus, Ban } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
@@ -16,7 +16,7 @@ type UserType = {
   subscriptionEnd?: number;
 };
 
-export default function AdminDashboard() {
+function AdminContent() {
   const router = useRouter();
   const params = useParams();
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -66,7 +66,7 @@ export default function AdminDashboard() {
   };
 
   const handleRevokeSubscription = (userId: number) => {
-    if (confirm("Вы уверены, что хотите ОТКЛЮЧИТЬ подписку этому работодателю? Он потеряет доступ к панели управления.")) {
+    if (confirm("Вы уверены, что хотите ОТКЛЮЧИТЬ подписку этому работодателю?")) {
       saveUsers(users.map(u => u.id === userId ? { ...u, subscriptionEnd: 0 } : u));
     }
   };
@@ -171,7 +171,6 @@ export default function AdminDashboard() {
                     </div>
                     
                     <div className="flex items-center gap-2 self-end md:self-auto">
-                      {/* Управление подпиской (только для работодателей) */}
                       {user.role === "employer" && (
                         <>
                           {subActive ? (
@@ -226,5 +225,13 @@ export default function AdminDashboard() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+export default function AdminDashboard() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-950 flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div></div>}>
+      <AdminContent />
+    </Suspense>
   );
 }
